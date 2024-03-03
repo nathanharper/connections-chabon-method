@@ -27,9 +27,13 @@ const Tile = ({ id, text, onDrop, isDragging }) => {
   );
 };
 
-const Row = ({ id, tiles, notes, onTileDrop, onNoteChange, onExcludeChange }) => {
+const Row = ({ id, tiles, notes, color, onTileDrop, onNoteChange, onExcludeChange, onColorChange }) => {
   const handleCheckboxChange = (event) => {
     onExcludeChange(id, event.target.checked);
+  };
+
+  const handleColorChange = (e) => {
+    onColorChange(id, e.target.value);
   };
 
   return (
@@ -53,6 +57,12 @@ const Row = ({ id, tiles, notes, onTileDrop, onNoteChange, onExcludeChange }) =>
           isDragging={tile.isDragging}
         />
       ))}
+      <input
+        type="color"
+        value={color}
+        onChange={handleColorChange}
+        title="Choose a color"
+      />
     </div>
   );
 };
@@ -66,6 +76,15 @@ const App = () => {
       ...prevExcludeRows,
       [rowId]: isChecked,
     }));
+  };
+
+  const handleColorChange = (rowId, newColor) => {
+    setGridData((prevRows) => {
+      const updatedRows = prevRows.map((row) =>
+        row.id === rowId ? { ...row, color: newColor } : row
+      );
+      return updatedRows;
+    });
   };
 
   const handleWordInputSubmit = (words) => {
@@ -166,9 +185,11 @@ const App = () => {
                   id={row.id}
                   tiles={row.tiles}
                   notes={row.notes}
+                  color={row.color}
                   onTileDrop={handleTileDrop}
                   onNoteChange={handleNoteChange}
                   onExcludeChange={handleExcludeChange}
+                  onColorChange={handleColorChange}
                 />
               ))}
               <button onClick={shuffleTiles}>Shuffle Tiles</button>
