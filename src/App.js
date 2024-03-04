@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import WordInputPage from './WordInputPage';
 
 import './App.css';
 
@@ -26,6 +24,15 @@ const Tile = ({ id, text, onDrop, isDragging }) => {
     </div>
   );
 };
+
+function getCurrentDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 const Row = ({ id, tiles, notes, color, onTileDrop, onNoteChange, onExcludeChange, onColorChange }) => {
   const handleCheckboxChange = (event) => {
@@ -87,16 +94,22 @@ const App = () => {
     });
   };
 
-  const handleWordInputSubmit = (words) => {
-    const initialData = words.map((word, index) => ({ id: index + 1, text: word }));
-    const data = [
-      { id: 1, tiles: initialData.slice(0, 4), notes: '' },
-      { id: 2, tiles: initialData.slice(4, 8), notes: '' },
-      { id: 3, tiles: initialData.slice(8, 12), notes: '' },
-      { id: 4, tiles: initialData.slice(12, 16), notes: '' },
-    ];
-    setGridData(data);
-  };
+  useEffect(() => {
+    fetch(`https://www.nytimes.com/svc/connections/v2/${getCurrentDate()}.json`)
+      .then(res => res.json())
+      .then(({ categories }) => {
+        const initialData = [].concat(...categories.map(c => c.cards))
+          .sort((a, b) => a.position - b.position)
+          .map(w => ({ id: w.position + 1, text: w.content }));
+
+        setGridData([
+          { id: 1, tiles: initialData.slice(0, 4), notes: '' },
+          { id: 2, tiles: initialData.slice(4, 8), notes: '' },
+          { id: 3, tiles: initialData.slice(8, 12), notes: '' },
+          { id: 4, tiles: initialData.slice(12, 16), notes: '' },
+        ]);
+      });
+  }, []);
 
   const handleTileDrop = (fromTileId, toTileId) => {
     setGridData((prevRows) => {
@@ -174,33 +187,24 @@ const App = () => {
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/grid" element={
-          <DndProvider backend={HTML5Backend}>
-            <div className="App">
-              {rows.map((row) => (
-                <Row
-                  key={row.id}
-                  id={row.id}
-                  tiles={row.tiles}
-                  notes={row.notes}
-                  color={row.color}
-                  onTileDrop={handleTileDrop}
-                  onNoteChange={handleNoteChange}
-                  onExcludeChange={handleExcludeChange}
-                  onColorChange={handleColorChange}
-                />
-              ))}
-              <button onClick={shuffleTiles}>Shuffle Tiles</button>
-            </div>
-          </DndProvider>
-        } />
-        <Route path="/" element={
-          <WordInputPage onSubmit={handleWordInputSubmit} />
-        } />
-      </Routes>
-    </Router>
+    <DndProvider backend={HTML5Backend}>
+      <div className="App">
+        {rows.map((row) => (
+          <Row
+            key={row.id}
+            id={row.id}
+            tiles={row.tiles}
+            notes={row.notes}
+            color={row.color}
+            onTileDrop={handleTileDrop}
+            onNoteChange={handleNoteChange}
+            onExcludeChange={handleExcludeChange}
+            onColorChange={handleColorChange}
+          />
+        ))}
+        <button onClick={shuffleTiles}>Shuffle Tiles</button>
+      </div>
+    </DndProvider>
   );
 };
 
