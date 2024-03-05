@@ -1,19 +1,22 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import App from './App.js';
 
-function getCurrentDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = (today.getMonth() + 1).toString().padStart(2, '0');
-  const day = today.getDate().toString().padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-}
+const revalidate = 3600;
 
 async function Main() {
-  const tileData = await fetch(`https://www.nytimes.com/svc/connections/v2/${getCurrentDate()}.json`)
+  const today = new Date();
+  const day = today.getDate().toString().padStart(2, '0');
+
+  const date = useMemo(() => {
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, [day]);
+
+  const tileData = await fetch(`https://www.nytimes.com/svc/connections/v2/${date}.json`, { next: { revalidate } })
     .then(res => res.json())
-    .then(({ categories }) => {
+    .then((res) => {
+      const { categories } = res;
       const initialData = [].concat(...categories.map(c => c.cards))
         .sort((a, b) => a.position - b.position)
         .map(w => ({ id: w.position + 1, text: w.content }));
