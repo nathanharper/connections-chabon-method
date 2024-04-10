@@ -4,13 +4,13 @@
   "theme_color": "#000",
   "background_color": "#000",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "scope": "/",
+  "start_url": "/",
   "icons": [
     {
       "src": "chabon.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "256x256"
     }
   ]
 }
