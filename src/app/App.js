@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
-import Head from 'next/head';
 
 import './App.css';
 
@@ -163,32 +162,24 @@ function App({ tileData }) {
   };
 
   return (
-    <>
-      <Head>
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <link rel="manifest" href="manifest.json" />
-        <link rel="apple-touch-icon" href="chabon.png" />
-      </Head>
-      <DndProvider backend={HTML5Backend}>
-        <div className="App">
-          {rows.map((row) => (
-            <Row
-              key={row.id}
-              id={row.id}
-              tiles={row.tiles}
-              notes={row.notes}
-              color={row.color}
-              onTileDrop={handleTileDrop}
-              onNoteChange={handleNoteChange}
-              onExcludeChange={handleExcludeChange}
-              onColorChange={handleColorChange}
-            />
-          ))}
-          <button onClick={shuffleTiles}>Shuffle Tiles</button>
-        </div>
-      </DndProvider>
-    </>
+    <DndProvider backend={HTML5Backend}>
+      <div className="App">
+        {rows.map((row) => (
+          <Row
+            key={row.id}
+            id={row.id}
+            tiles={row.tiles}
+            notes={row.notes}
+            color={row.color}
+            onTileDrop={handleTileDrop}
+            onNoteChange={handleNoteChange}
+            onExcludeChange={handleExcludeChange}
+            onColorChange={handleColorChange}
+          />
+        ))}
+        <button onClick={shuffleTiles}>Shuffle Tiles</button>
+      </div>
+    </DndProvider>
   );
 }
 

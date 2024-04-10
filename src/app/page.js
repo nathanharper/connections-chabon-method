@@ -29,7 +29,7 @@ async function Main() {
       ];
     });
 
-  return <App {...{tileData}} />
+  return <App {...{tileData}} />;
 }
 
 export default Main;
