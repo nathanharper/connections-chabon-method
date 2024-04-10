@@ -165,7 +165,8 @@ function App({ tileData }) {
   return (
     <>
       <Head>
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="manifest.json" />
+        <link rel="apple-touch-icon" href="chabon.png" />
       </Head>
       <DndProvider backend={HTML5Backend}>
         <div className="App">
