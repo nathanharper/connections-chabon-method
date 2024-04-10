@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
+import Head from 'next/head';
 
 import './App.css';
 
@@ -162,24 +163,29 @@ function App({ tileData }) {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="App">
-        {rows.map((row) => (
-          <Row
-            key={row.id}
-            id={row.id}
-            tiles={row.tiles}
-            notes={row.notes}
-            color={row.color}
-            onTileDrop={handleTileDrop}
-            onNoteChange={handleNoteChange}
-            onExcludeChange={handleExcludeChange}
-            onColorChange={handleColorChange}
-          />
-        ))}
-        <button onClick={shuffleTiles}>Shuffle Tiles</button>
-      </div>
-    </DndProvider>
+    <>
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+      </Head>
+      <DndProvider backend={HTML5Backend}>
+        <div className="App">
+          {rows.map((row) => (
+            <Row
+              key={row.id}
+              id={row.id}
+              tiles={row.tiles}
+              notes={row.notes}
+              color={row.color}
+              onTileDrop={handleTileDrop}
+              onNoteChange={handleNoteChange}
+              onExcludeChange={handleExcludeChange}
+              onColorChange={handleColorChange}
+            />
+          ))}
+          <button onClick={shuffleTiles}>Shuffle Tiles</button>
+        </div>
+      </DndProvider>
+    </>
   );
 }
 

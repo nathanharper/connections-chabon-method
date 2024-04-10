@@ -1,0 +1,11 @@
+{
+  "name": "Chabon Method",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/chabon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
