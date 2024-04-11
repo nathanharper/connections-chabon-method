@@ -1,8 +1,6 @@
 import React, {useMemo} from 'react';
 import App from './App.js';
 
-const revalidate = 3600;
-
 async function Main() {
   const today = new Date();
   const day = today.getDate().toString().padStart(2, '0');
@@ -13,7 +11,7 @@ async function Main() {
     return `${year}-${month}-${day}`;
   }, [day]);
 
-  const tileData = await fetch(`https://www.nytimes.com/svc/connections/v2/${date}.json`, { next: { revalidate } })
+  const tileData = await fetch(`https://www.nytimes.com/svc/connections/v2/${date}.json`, { cache: 'no-store' })
     .then(res => res.json())
     .then((res) => {
       const { categories } = res;
