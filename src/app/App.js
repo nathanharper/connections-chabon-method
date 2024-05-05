@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
@@ -7,6 +7,8 @@ import { DndProvider } from 'react-dnd';
 import './App.css';
 
 const TILE = 'TILE';
+const CLEAR = 1;
+const LOCK = 2;
 
 const Tile = ({ id, text, onDrop, isDragging }) => {
   const [, drag] = useDrag({
@@ -26,27 +28,9 @@ const Tile = ({ id, text, onDrop, isDragging }) => {
   );
 };
 
-const Row = ({ id, tiles, notes, color, onTileDrop, onNoteChange, onExcludeChange, onColorChange }) => {
-  const handleCheckboxChange = (event) => {
-    onExcludeChange(id, event.target.checked);
-  };
-
-  const handleColorChange = (e) => {
-    onColorChange(id, e.target.value);
-  };
-
+const Row = ({ id, tiles, onTileDrop, lockData, onDoubleClick }) => {
   return (
-    <div className="row">
-      <input
-        type="checkbox"
-        onChange={handleCheckboxChange}
-      />
-      <input
-        type="text"
-        value={notes}
-        onChange={(e) => onNoteChange(id, e.target.value)}
-        placeholder="Notes"
-      />
+    <div className="row" onDoubleClick={() => onDoubleClick(id)}>
       {tiles.map((tile) => (
         <Tile
           key={tile.id}
@@ -56,35 +40,58 @@ const Row = ({ id, tiles, notes, color, onTileDrop, onNoteChange, onExcludeChang
           isDragging={tile.isDragging}
         />
       ))}
-      <input
-        type="color"
-        value={color}
-        onChange={handleColorChange}
-        title="Choose a color"
-      />
     </div>
   );
 };
 
+function LockOverlay({id, lockData, onSubmit, onCancel}) {
+  return (
+    <div className="overlay">
+      <h2>Lock Row</h2>
+      <form onSubmit={onSubmit}>
+        <input type="hidden" name="row_id" value={id} />
+        <div>
+          <label>
+            Color:
+            <input
+              type="color"
+              name="color"
+              title="color"
+              defaultValue={lockData?.color}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Theme:
+            <input
+              type="text"
+              name="theme"
+              placeholder="theme"
+              defaultValue={lockData?.theme}
+            />
+          </label>
+        </div>
+        <input type="submit" value="lock" />
+        <input type="button" value="cancel" onClick={() => onCancel(id)} />
+      </form>
+    </div>
+  );
+}
+
+function LockedRow({row, onDoubleClick}) {
+  return (
+    <div className="locked-row" style={{ backgroundColor: row.lockData.color }} onDoubleClick={() => onDoubleClick(row.id)}>
+      <h3>{row.lockData.theme}</h3>
+      <div className="word-list">{row.tiles.map(t => t.text).join(', ')}</div>
+    </div>
+  );
+}
+
 function App({ tileData }) {
   const [rows, setGridData] = useState(tileData);
+  const [overlay, setOverlay] = useState(null);
   const [excludeRows, setExcludeRows] = useState({});
-
-  const handleExcludeChange = (rowId, isChecked) => {
-    setExcludeRows((prevExcludeRows) => ({
-      ...prevExcludeRows,
-      [rowId]: isChecked,
-    }));
-  };
-
-  const handleColorChange = (rowId, newColor) => {
-    setGridData((prevRows) => {
-      const updatedRows = prevRows.map((row) =>
-        row.id === rowId ? { ...row, color: newColor } : row
-      );
-      return updatedRows;
-    });
-  };
 
   const handleTileDrop = (fromTileId, toTileId) => {
     setGridData((prevRows) => {
@@ -122,15 +129,6 @@ function App({ tileData }) {
     });
   };
 
-  const handleNoteChange = (rowId, newNote) => {
-    setGridData((prevRows) => {
-      const updatedRows = prevRows.map((row) =>
-        row.id === rowId ? { ...row, notes: newNote } : row
-      );
-      return updatedRows;
-    });
-  };
-
   const shuffleTiles = () => {
     setGridData((prevRows) => {
       const shuffledTiles = prevRows.reduce((acc, row) => {
@@ -161,23 +159,77 @@ function App({ tileData }) {
     });
   };
 
+  const onDoubleClick = useCallback((id) => {
+    if (overlay) return;
+    setOverlay({type: LOCK, id});
+  }, [overlay, setOverlay]);
+
+  const onLockSubmit = useCallback(e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const rowId = Number(formData.get('row_id'));
+    const color = formData.get('color');
+    const theme = formData.get('theme');
+    setGridData(prevRows => {
+      return prevRows.map(row => {
+        if (row.id !== rowId) return row;
+        return {
+          ...row,
+          lockData: { color, theme },
+        };
+      });
+    });
+    setExcludeRows((prevExcludeRows) => ({
+      ...prevExcludeRows,
+      [rowId]: true,
+    }));
+    setOverlay(null);
+  }, [setGridData, setOverlay, setExcludeRows]);
+
+  const onCancel = useCallback((rowId) => {
+    setGridData(prevRows => {
+      return prevRows.map(row => {
+        if (row.id !== rowId) return row;
+        return { ...row, lockData: null };
+      });
+    });
+    setExcludeRows((prevExcludeRows) => ({
+      ...prevExcludeRows,
+      [rowId]: false,
+    }));
+    setOverlay(null);
+  }, [setGridData, setOverlay, setExcludeRows]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App">
         {rows.map((row) => (
-          <Row
-            key={row.id}
-            id={row.id}
-            tiles={row.tiles}
-            notes={row.notes}
-            color={row.color}
-            onTileDrop={handleTileDrop}
-            onNoteChange={handleNoteChange}
-            onExcludeChange={handleExcludeChange}
-            onColorChange={handleColorChange}
-          />
+          row.lockData ? (
+            <LockedRow
+              key={`locked-row-${row.id}`}
+              row={row}
+              onDoubleClick={onDoubleClick}
+            />
+          ) : (
+            <Row
+              key={`row-${row.id}`}
+              id={row.id}
+              tiles={row.tiles}
+              lockData={row.lockData}
+              onTileDrop={handleTileDrop}
+              onDoubleClick={onDoubleClick}
+            />
+          )
         ))}
         <button onClick={shuffleTiles}>Shuffle Tiles</button>
+        {overlay && (
+          <LockOverlay
+            id={overlay.id}
+            lockData={rows.find(r => r.id === overlay.id).lockData}
+            onSubmit={onLockSubmit}
+            onCancel={onCancel}
+          />
+        )}
       </div>
     </DndProvider>
   );

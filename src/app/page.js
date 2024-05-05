@@ -20,10 +20,10 @@ async function Main() {
         .map(w => ({ id: w.position + 1, text: w.content }));
 
       return [
-        { id: 1, tiles: initialData.slice(0, 4), notes: '' },
-        { id: 2, tiles: initialData.slice(4, 8), notes: '' },
-        { id: 3, tiles: initialData.slice(8, 12), notes: '' },
-        { id: 4, tiles: initialData.slice(12, 16), notes: '' },
+        { id: 1, tiles: initialData.slice(0, 4), lockData: false },
+        { id: 2, tiles: initialData.slice(4, 8), lockData: false },
+        { id: 3, tiles: initialData.slice(8, 12), lockData: false },
+        { id: 4, tiles: initialData.slice(12, 16), lockData: false },
       ];
     });
 

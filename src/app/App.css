@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
 }
 
 .row {
@@ -10,9 +9,19 @@
   margin-bottom: 20px;
 }
 
+.locked-row {
+  text-align: center;
+  width: 84vw;
+  height: 20vw;
+  padding: 10px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  border-radius: 30px;
+}
+
 .tile {
-  width: 80px;
-  height: 80px;
+  width: 20vw;
+  height: 20vw;
   border: 1px solid #ddd;
   display: flex;
   align-items: center;
@@ -25,7 +34,18 @@
   opacity: 0.5;
 }
 
-input {
-  width: 100px;
-  margin-right: 10px;
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+}
+
+button, input[type=button], input[type=submit] {
+  border: 2 px solid black;
+  background-color: white;
+  width: 20vw;
+  height: 10vw;
 }
