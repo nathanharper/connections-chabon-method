@@ -72,8 +72,8 @@ function LockOverlay({id, lockData, onSubmit, onCancel}) {
             />
           </label>
         </div>
-        <input type="submit" value="lock" />
-        <input type="button" value="cancel" onClick={() => onCancel(id)} />
+        <div><input type="submit" value="lock" /></div>
+        <div><input type="button" value="cancel" onClick={() => onCancel(id)} /></div>
       </form>
     </div>
   );
