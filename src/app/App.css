@@ -45,9 +45,19 @@
   box-sizing: border-box;
 }
 
+input[type=submit] {
+  margin-right: 10px;
+}
+
+form div {
+  margin: 20px 0px;
+}
+
 button, input[type=button], input[type=submit] {
   border: 2px solid black;
   background-color: white;
   width: 20vw;
   height: 10vw;
+  text-decoration: none;
+  color: black;
 }
