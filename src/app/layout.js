@@ -8,7 +8,6 @@ export const metadata = {
   'mobile-web-app-capable': 'yes',
   'apple-mobile-web-app-capable': 'yes',
   'theme-color': '#000',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
 //<link rel="manifest" href="manifest.json" />
