@@ -228,7 +228,7 @@ function App({ tileData }) {
             />
           )
         ))}
-        <button onClick={shuffleTiles}>Shuffle Tiles</button>
+        <button onClick={shuffleTiles}>Shuffle</button>
         {overlay && (
           <LockOverlay
             id={overlay.id}
