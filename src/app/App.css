@@ -27,7 +27,8 @@
   align-items: center;
   justify-content: center;
   margin-right: 10px;
-  font-size: 14px;
+  font-size: 2vmin;
+  font-weight: bold;
 }
 
 .dragging {
@@ -60,4 +61,6 @@ button, input[type=button], input[type=submit] {
   height: 10vw;
   text-decoration: none;
   color: black;
+  text-transform: uppercase;
+  font-weight: bold;
 }

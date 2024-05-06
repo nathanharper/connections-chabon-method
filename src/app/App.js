@@ -10,6 +10,10 @@ const TILE = 'TILE';
 const CLEAR = 1;
 const LOCK = 2;
 
+function rowToText(row) {
+  return row.tiles.map(t => t.text).join(', ');
+}
+
 const Tile = ({ id, text, onDrop, isDragging }) => {
   const [, drag] = useDrag({
     type: TILE,
@@ -44,10 +48,10 @@ const Row = ({ id, tiles, onTileDrop, lockData, onDoubleClick }) => {
   );
 };
 
-function LockOverlay({id, lockData, onSubmit, onCancel}) {
+function LockOverlay({id, row, onSubmit, onCancel}) {
   return (
     <div className="overlay">
-      <h2>Lock Row</h2>
+      <h2>Connect Words: {rowToText(row)}</h2>
       <form onSubmit={onSubmit}>
         <input type="hidden" name="row_id" value={id} />
         <div>
@@ -57,7 +61,7 @@ function LockOverlay({id, lockData, onSubmit, onCancel}) {
               type="color"
               name="color"
               title="color"
-              defaultValue={lockData?.color}
+              defaultValue={row.lockData?.color}
             />
           </label>
         </div>
@@ -68,13 +72,13 @@ function LockOverlay({id, lockData, onSubmit, onCancel}) {
               type="text"
               name="theme"
               placeholder="theme"
-              defaultValue={lockData?.theme}
+              defaultValue={row.lockData?.theme}
             />
           </label>
         </div>
         <div>
-          <input type="submit" value="lock" />
-          <input type="button" value="cancel" onClick={() => onCancel(id)} />
+          <input type="submit" value="connect" />
+          <input type="button" value="clear" onClick={() => onCancel(id)} />
         </div>
       </form>
     </div>
@@ -85,7 +89,7 @@ function LockedRow({row, onDoubleClick}) {
   return (
     <div className="locked-row" style={{ backgroundColor: row.lockData.color }} onDoubleClick={() => onDoubleClick(row.id)}>
       <h3>{row.lockData.theme}</h3>
-      <div className="word-list">{row.tiles.map(t => t.text).join(', ')}</div>
+      <div className="word-list">{rowToText(row)}</div>
     </div>
   );
 }
@@ -205,6 +209,7 @@ function App({ tileData }) {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App">
+        <h1>CONNECTIONS</h1>
         {rows.map((row) => (
           row.lockData ? (
             <LockedRow
@@ -227,7 +232,7 @@ function App({ tileData }) {
         {overlay && (
           <LockOverlay
             id={overlay.id}
-            lockData={rows.find(r => r.id === overlay.id).lockData}
+            row={rows.find(r => r.id === overlay.id)}
             onSubmit={onLockSubmit}
             onCancel={onCancel}
           />
